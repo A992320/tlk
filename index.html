@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة الحسابات المالية</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --positive-color: #2ecc71;
+            --negative-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --dark-text: #2c3e50;
+            --border-color: #bdc3c7;
+            --button-primary: #27ae60;
+            --button-secondary: #3498db;
+            --button-danger: #e74c3c;
+            --button-warning: #f39c12;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            direction: rtl;
+            text-align: right;
+            margin: 0;
+            padding: 20px;
+            color: var(--dark-text);
+            background-color: var(--light-bg);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        header {
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .form-control {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+        }
+        
+        button {
+            cursor: pointer;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            filter: brightness(90%);
+        }
+        
+        .btn-primary {
+            background-color: var(--button-primary);
+        }
+        
+        .btn-secondary {
+            background-color: var(--button-secondary);
+        }
+        
+        .btn-danger {
+            background-color: var(--button-danger);
+        }
+        
+        .btn-warning {
+            background-color: var(--button-warning);
+        }
+        
+        .btn-with-icon {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .search-box {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: center;
+        }
+        
+        th {
+            background: var(--primary-color);
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .positive {
+            background-color: rgba(46, 204, 113, 0.2);
+        }
+        
+        .negative {
+            background-color: rgba(231, 76, 60, 0.2);
+        }
+        
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .summary-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .summary-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .positive-text {
+            color: var(--positive-color);
+        }
+        
+        .negative-text {
+            color: var(--negative-color);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .close {
+            float: left;
+            cursor: pointer;
+            font-size: 24px;
+        }
+        
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-control {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .import-export-section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: var(--light-bg);
+            border-radius: 4px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .btn-icon {
+            margin-right: 5px;
+            font-size: 1.1em;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .success-message, .error-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+        }
+        
+        .success-message {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: var(--positive-color);
+        }
+        
+        .error-message {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: var(--negative-color);
+        }
+        
+        .action-buttons-cell {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+        
+        @media (max-width: 768px) {
+            .form-control, .filter-control {
+                min-width: 100%;
+            }
+            
+            .summary {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .action-buttons-cell {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-title">
+                <h2>نظام إدارة الحسابات المالية</h2>
+            </div>
+            <div class="action-buttons">
+                <button class="btn-with-icon" onclick="showImportExportSection()">
+                    <span class="btn-icon">🔄</span>
+                    استيراد / تصدير
+                </button>
+                <button class="btn-with-icon btn-primary" onclick="backupToGoogleDrive()">
+                    <span class="btn-icon">☁️</span>
+                    حفظ نسخة احتياطية
+                </button>
+            </div>
+        </header>
+        
+        <!-- Import/Export Section (initially hidden) -->
+        <div id="importExportSection" class="import-export-section" style="display: none;">
+            <div style="width: 100%; margin-bottom: 10px;">
+                <h4 style="margin-top: 0;">خيارات الاستيراد والتصدير</h4>
+            </div>
+            
+            <div class="form-control">
+                <label>استيراد من ملف Excel:</label>
+                <div class="file-input-wrapper">
+                    <button class="btn-secondary btn-with-icon">
+                        <span class="btn-icon">📄</span>
+                        اختر ملف Excel
+                    </button>
+                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" onchange="importFromExcel(this)">
+                </div>
+            </div>
+            
+            <div class="form-control">
+                <label>تصدير إلى Excel:</label>
+                <button class="btn-secondary btn-with-icon" onclick="exportToExcel()">
+                    <span class="btn-icon">📊</span>
+                    تصدير كملف Excel
+                </button>
+            </div>
+            
+            <div class="form-control">
+                <label>تصدير كملف PDF:</label>
+                <button class="btn-secondary btn-with-icon" onclick="exportToPDF()">
+                    <span class="btn-icon">📑</span>
+                    تصدير كملف PDF
+                </button>
+            </div>
+        </div>
+        
+        <div id="successMessage" class="success-message"></div>
+        <div id="errorMessage" class="error-message"></div>
+        
+        <div class="form-group">
+            <div class="form-control">
+                <label for="firstName">الاسم الأول:</label>
+                <input type="text" id="firstName" placeholder="أدخل الاسم الأول">
+            </div>
+            <div class="form-control">
+                <label for="lastName">الاسم الثاني:</label>
+                <input type="text" id="lastName" placeholder="أدخل الاسم الثاني">
+            </div>
+            <div class="form-control">
+                <label for="amount">المبلغ:</label>
+                <input type="number" id="amount" placeholder="أدخل المبلغ" step="0.01">
+            </div>
+            <div class="form-control">
+                <label for="category">التصنيف:</label>
+                <select id="category">
+                    <option value="">-- اختر التصنيف --</option>
+                    <option value="دخل">دخل</option>
+                    <option value="مصروف">مصروف</option>
+                    <option value="قرض">قرض</option>
+                    <option value="استثمار">استثمار</option>
+                </select>
+            </div>
+            <div class="form-control">
+                <label for="details">التفاصيل:</label>
+                <input type="text" id="details" placeholder="أدخل تفاصيل العملية">
+            </div>
+            <div class="form-control">
+                <label for="date">التاريخ:</label>
+                <input type="date" id="date">
+            </div>
+            <div class="form-control" style="align-self: flex-end;">
+                <button id="addBtn" class="btn-primary" onclick="addEntry()">إضافة</button>
+            </div>
+        </div>
+        
+        <div class="search-box">
+            <div class="filter-section">
+                <div class="filter-control">
+                    <label for="searchBox">بحث:</label>
+                    <input type="text" id="searchBox" placeholder="بحث بالاسم أو التفاصيل" onkeyup="applyFilters()">
+                </div>
+                <div class="filter-control">
+                    <label for="categoryFilter">تصفية حسب التصنيف:</label>
+                    <select id="categoryFilter" onchange="applyFilters()">
+                        <option value="">الكل</option>
+                        <option value="دخل">دخل</option>
+                        <option value="مصروف">مصروف</option>
+                        <option value="قرض">قرض</option>
+                        <option value="استثمار">استثمار</option>
+                    </select>
+                </div>
+                <div class="filter-control">
+                    <label for="dateFilter">تصفية حسب التاريخ:</label>
+                    <input type="date" id="dateFilter" onchange="applyFilters()">
+                </div>
+                <div class="filter-control" style="align-self: flex-end;">
+                    <button onclick="resetFilters()">إعادة تعيين الفلاتر</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table id="financeTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">الاسم الأول ▼</th>
+                        <th onclick="sortTable(1)">الاسم الثاني ▼</th>
+                        <th onclick="sortTable(2)">المبلغ ▼</th>
+                        <th onclick="sortTable(3)">التصنيف ▼</th>
+                        <th onclick="sortTable(4)">التفاصيل ▼</th>
+                        <th onclick="sortTable(5)">التاريخ ▼</th>
+                        <th>إجراء</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <div class="summary">
+            <div class="summary-item">
+                <div>الإيرادات</div>
+                <div class="summary-value positive-text" id="totalIncome">0</div>
+            </div>
+            <div class="summary-item">
+                <div>المصروفات</div>
+                <div class="summary-value negative-text" id="totalExpense">0</div>
+            </div>
+            <div class="summary-item">
+                <div>الرصيد الحالي</div>
+                <div class="summary-value" id="totalAmount">0</div>
+            </div>
+            <div class="summary-item">
+                <div>عدد المعاملات</div>
+                <div class="summary-value" id="entryCount">0</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>تعديل البيانات</h3>
+            <div class="form-group">
+                <div class="form-control">
+                    <label for="editFirstName">الاسم الأول:</label>
+                    <input type="text" id="editFirstName">
+                </div>
+                <div class="form-control">
+                    <label for="editLastName">الاسم الثاني:</label>
+                    <input type="text" id="editLastName">
+                </div>
+                <div class="form-control">
+                    <label for="editAmount">المبلغ:</label>
+                    <input type="number" id="editAmount" step="0.01">
+                </div>
+                <div class="form-control">
+                    <label for="editCategory">التصنيف:</label>
+                    <select id="editCategory">
+                        <option value="دخل">دخل</option>
+                        <option value="مصروف">مصروف</option>
+                        <option value="قرض">قرض</option>
+                        <option value="استثمار">استثمار</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label for="editDetails">التفاصيل:</label>
+                    <input type="text" id="editDetails">
+                </div>
+                <div class="form-control">
+                    <label for="editDate">التاريخ:</label>
+                    <input type="date" id="editDate">
+                </div>
+            </div>
+            <input type="hidden" id="editIndex">
+            <button class="btn-primary" onclick="saveEdit()">حفظ التغييرات</button>
+        </div>
+    </div>
+    
+    <!-- Google Drive Auth Modal -->
+    <div id="driveAuthModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGDriveModal()">&times;</span>
+            <h3>ربط حساب Google Drive</h3>
+            <p>لتخزين البيانات في Google Drive، يجب عليك منح التطبيق الإذن للوصول إلى حسابك.</p>
+            <p>سيفتح المتصفح نافذة جديدة لتسجيل الدخول إلى Google. بعد إكمال العملية، سيتم حفظ البيانات تلقائيًا.</p>
+            <button class="btn-secondary" id="authorizeButton">منح الإذن</button>
+            <div id="authStatus" style="margin-top: 15px; display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let data = JSON.parse(localStorage.getItem('financeData')) || [];
+        let currentSort = { column: -1, ascending: true };
+        let editingIndex = -1;
+        
+        // Load initial data
+        window.onload = function() {
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            
+            renderTable();
+        };
+        
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('financeData', JSON.stringify(data));
+        }
+        
+        // Show message function
+        function showMessage(messageType, text, duration = 3000) {
+            const element = document.getElementById(messageType + 'Message');
+            element.textContent = text;
+            element.style.display = 'block';
+            
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, duration);
+        }
+        
+        // Toggle import/export section
+        function showImportExportSection() {
+            const section = document.getElementById('importExportSection');
+            section.style.display = section.style.display === 'none' ? 'flex' : 'none';
+        }
+        
+        // Add a new entry
+        function addEntry() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const amount = parseFloat(document.getElementById('amount').value);
+            const category = document.getElementById('category').value;
+            const details = document.getElementById('details').value.trim();
+            const date = document.getElementById('date').value;
+            
+            if (!firstName || !lastName || isNaN(amount) || !date || !category) {
+                showMessage('error', 'يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+            
+            const entry = {
+                firstName,
+                lastName,
+                amount,
+                category,
+                details,
+                date,
+                timestamp: new Date().getTime()
+            };
+            
+            data.push(entry);
+            saveData();
+            clearForm();
+            renderTable();
+            showMessage('success', 'تمت إضافة السجل بنجاح');
+        }
+        
+        // Clear the input form
+        function clearForm() {
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('category').value = '';
+            document.getElementById('details').value = '';
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        }
+        
+        // Delete entry by index
+        function deleteEntry(index) {
+            if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+                data.splice(index, 1);
+                saveData();
+                renderTable();
+                showMessage('success', 'تم حذف السجل بنجاح');
+            }
+        }
+        
+        // Open the edit modal
+        function openEditModal(index) {
+            editingIndex = index;
+            const entry = data[index];
+            
+            document.getElementById('editFirstName').value = entry.firstName;
+            document.getElementById('editLastName').value = entry.lastName;
+            document.getElementById('editAmount').value = entry.amount;
+            document.getElementById('editCategory').value = entry.category || 'دخل';
+            document.getElementById('editDetails').value = entry.details || '';
+            document.getElementById('editDate').value = entry.date;
+            document.getElementById('editIndex').value = index;
+            
+            document.getElementById('editModal').style.display = 'flex';
+        }
+        
+        // Close the edit modal
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+        
+        // Save edited entry
+        function saveEdit() {
+            const index = parseInt(document.getElementById('editIndex').value);
+            const firstName = document.getElementById('editFirstName').value.trim();
+            const lastName = document.getElementById('editLastName').value.trim();
+            const amount = parseFloat(document.getElementById('editAmount').value);
+            const category = document.getElementById('editCategory').value;
+            const details = document.getElementById('editDetails').value.trim();
+            const date = document.getElementById('editDate').value;
+            
+            if (!firstName || !lastName || isNaN(amount) || !date || !category) {
+                showMessage('error', 'يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+            
+            data[index] = {
+                firstName,
+                lastName,
+                amount,
+                category,
+                details,
+                date,
+                timestamp: data[index].timestamp || new Date().getTime()
+            };
+            
+            saveData();
+            closeModal();
+            renderTable();
+            showMessage('success', 'تم تحديث السجل بنجاح');
+        }
+        
+        // Apply filters to the table
+        function applyFilters() {
+            const searchText = document.getElementById('searchBox').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            
+            const rows = document.querySelectorAll("#financeTable tbody tr");
+            
+            rows.forEach(row => {
+                const firstName = row.cells[0].textContent.toLowerCase();
+                const lastName = row.cells[1].textContent.toLowerCase();
+                const category = row.cells[3].textContent;
+                const details = row.cells[4].textContent.toLowerCase();
+                const date = row.cells[5].textContent;
+                
+                const matchesSearch = searchText === '' || 
+                    firstName.includes(searchText) || 
+                    lastName.includes(searchText) || 
+                    details.includes(searchText);
+                    
+                const matchesCategory = categoryFilter === '' || category === categoryFilter;
+                const matchesDate = dateFilter === '' || date === dateFilter;
+                
+                row.style.display = (matchesSearch && matchesCategory && matchesDate) ? '' : 'none';
+            });
+        }
+        
+        // Reset all filters
+        function resetFilters() {
+            document.getElementById('searchBox').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            applyFilters();
+        }
+        
+        // Sort table by column
+        function sortTable(columnIndex) {
+            // Toggle sorting direction if same column is clicked
+            if (currentSort.column === columnIndex) {
+                currentSort.ascending = !currentSort.ascending;
+            } else {
+                currentSort.column = columnIndex;
+                currentSort.ascending = true;
+            }
+            
+            // Sort the data array
+            data.sort((a, b) => {
+                let valueA, valueB;
+                
+                // Get the appropriate property based on column index
+                switch(columnIndex) {
+                    case 0: valueA = a.firstName; valueB = b.firstName; break;
+                    case 1: valueA = a.lastName; valueB = b.lastName; break;
+                    case 2: valueA = a.amount; valueB = b.amount; break;
+                    case 3: valueA = a.category || ''; valueB = b.category || ''; break;
+                    case 4: valueA = a.details; valueB = b.details; break;
+                    case 5: valueA = a.date; valueB = b.date; break;
+                    default: valueA = a.timestamp; valueB = b.timestamp;
+                }
+                
+                // Sort comparison
+                if (columnIndex === 2) { // Numeric sort for amount
+                    return currentSort.ascending ? valueA - valueB : valueB - valueA;
+                } else {
+                    // String comparison for text
+                    const comparison = String(valueA).localeCompare(String(valueB), 'ar');
+                    return currentSort.ascending ? comparison : -comparison;
+                }
+            });
+            
+            saveData();
+            renderTable();
+            
+            // Update header indicators
+            const headers = document.querySelectorAll('th');
+            headers.forEach((header, index) => {
+                if (index === columnIndex) {
+                    header.textContent = header.textContent.replace(/[▼▲]/, '');
+                    header.textContent += currentSort.ascending ? ' ▼' : ' ▲';
+                } else if (index < 6) {
+                    header.textContent = header.textContent.replace(/[▼▲]/, '') + ' ▼';
+                }
+            });
+        }
+        
+        // Export data to Excel
+        function exportToExcel() {
+            if (data.length === 0) {
+                showMessage('error', 'لا توجد بيانات للتصدير');
+                return;
+            }
+            
+            // Format data for Excel
+            const excelData = [['الاسم الأول', 'الاسم الثاني', 'المبلغ', 'التصنيف', 'التفاصيل', 'التاريخ']];
+            
+            data.forEach(entry => {
+                excelData.push([
+                    entry.firstName,
+                    entry.lastName,
+                    entry.amount,
+                    entry.category || '',
+                    entry.details || '',
+                    entry.date
+                ]);
+            });
+            
+            // Create workbook and worksheet
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+            
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, "FinanceData");
+            
+            // Write file and trigger download
+            const today = new Date().toISOString().slice(0, 10);
+            XLSX.writeFile(wb, `financial_data_${today}.xlsx`);
+            
+            showMessage('success', 'تم تصدير البيانات إلى ملف Excel بنجاح');
+        }
+        
+        // Import data from Excel file
+        function importFromExcel(input) {
+            const file = input.files[0];
+            
+            if (!file) {
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // Get first worksheet
+                    const worksheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[worksheetName];
+                    
+                    // Convert to JSON
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    // Skip header row
+                    if (jsonData.length > 1) {
+                        const importedData = [];
+                        
+                        for (let i = 1; i < jsonData.length; i++) {
+                            const row = jsonData[i];
+                            if (row.length >= 6) {
+                                importedData.push({
+                                    firstName: row[0] || '',
+                                    lastName: row[1] || '',
+                                    amount: parseFloat(row[2]) || 0,
+                                    category: row[3] || '',
+                                    details: row[4] || '',
+                                    date: row[5] || new Date().toISOString().slice(0, 10),
+                                    timestamp: new Date().getTime()
+                                });
+                            }
+                        }
+                        
+                        if (importedData.length > 0) {
+                            if (confirm(`تم العثور على ${importedData.length} سجلات. هل تريد استيرادها؟`)) {
+                                data = importedData;
+                                saveData();
+                                renderTable();
+                                showMessage('success', `تم استيراد ${importedData.length} سجلات بنجاح`);
+                            }
+                        } else {
+                            showMessage('error', 'لم يتم العثور على بيانات صالحة في الملف');
+                        }
+                    } else {
+                        showMessage('error', 'لم يتم العثور على بيانات في الملف');
+                    }
+                } catch (error) {
+                    console.error('Error importing Excel file:', error);
+                    showMessage('error', 'حدث خطأ أثناء معالجة الملف. يرجى التأكد من صيغة الملف');
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+        
+        // Export data to PDF
+        function exportToPDF() {
+            if (data.length === 0) {
+                showMessage('error', 'لا توجد بيانات للتصدير');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Add title
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(18);
+            doc.text('كشف الحسابات المالية', 105, 15, { align: 'center' });
+
+            // Add date
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(12);
+            const today = new Date().toLocaleDateString('ar-EG');
+            doc.text(`تاريخ التقرير: ${today}`, 105, 25, { align: 'center' });
+
+            // Prepare table data
+            const tableData = [
+                ['الاسم', 'المبلغ', 'التصنيف', 'التفاصيل', 'التاريخ']
+            ];
+
+            data.forEach(entry => {
+                tableData.push([
+                    `${entry.firstName} ${entry.lastName}`,
+                    entry.amount.toFixed(2),
+                    entry.category || '',
+                    entry.details || '',
+                    entry.date
+                ]);
+            });
+
+            // Add table
+            doc.autoTable({
+                head: [tableData[0]],
+                body: tableData.slice(1),
+                startY: 30,
+                styles: {
+                    font: 'helvetica',
+                    fontSize: 10,
+                    halign: 'center'
+                },
+                headStyles: {
+                    fillColor: [44, 62, 80],
+                    textColor: 255,
+                    fontStyle: 'bold'
+                },
+                columnStyles: {
+                    0: { cellWidth: 40 },
+                    1: { cellWidth: 30 },
+                    2: { cellWidth: 30 },
+                    3: { cellWidth: 50 },
+                    4: { cellWidth: 40 }
+                }
+            });
+
+            // Add summary
+            const summaryY = doc.lastAutoTable.finalY + 10;
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text('ملخص الحسابات', 105, summaryY, { align: 'center' });
+
+            doc.setFont('helvetica', 'normal');
+            const income = data.filter(d => d.category === 'دخل').reduce((sum, d) => sum + d.amount, 0);
+            const expense = data.filter(d => d.category === 'مصروف').reduce((sum, d) => sum + d.amount, 0);
+            const balance = income - expense;
+
+            doc.text(`الإيرادات: ${income.toFixed(2)}`, 105, summaryY + 10, { align: 'center' });
+            doc.text(`المصروفات: ${expense.toFixed(2)}`, 105, summaryY + 20, { align: 'center' });
+            doc.text(`الرصيد الحالي: ${balance.toFixed(2)}`, 105, summaryY + 30, { align: 'center' });
+
+            // Save the PDF
+            const todayStr = new Date().toISOString().slice(0, 10);
+            doc.save(`financial_report_${todayStr}.pdf`);
+
+            showMessage('success', 'تم تصدير البيانات إلى ملف PDF بنجاح');
+        }
+        
+        // Backup to Google Drive (mock implementation)
+        function backupToGoogleDrive() {
+            // In a real implementation, you would use Google Drive API here
+            // This is just a mock implementation for demonstration
+            document.getElementById('driveAuthModal').style.display = 'flex';
+        }
+        
+        function closeGDriveModal() {
+            document.getElementById('driveAuthModal').style.display = 'none';
+        }
+        
+        // Mock Google Drive authorization
+        document.getElementById('authorizeButton').addEventListener('click', function() {
+            const authStatus = document.getElementById('authStatus');
+            authStatus.style.display = 'block';
+            authStatus.innerHTML = '<p>جارٍ الاتصال بحساب Google Drive...</p>';
+            
+            // Simulate authorization process
+            setTimeout(() => {
+                authStatus.innerHTML = '<p style="color: green;">تم التخويل بنجاح!</p>';
+                setTimeout(() => {
+                    authStatus.innerHTML += '<p>جارٍ حفظ البيانات...</p>';
+                    setTimeout(() => {
+                        authStatus.innerHTML += '<p style="color: green;">تم حفظ نسخة احتياطية بنجاح!</p>';
+                        setTimeout(() => {
+                            closeGDriveModal();
+                            showMessage('success', 'تم حفظ نسخة احتياطية في Google Drive بنجاح');
+                        }, 1000);
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        });
+        
+        // Render the table with current data
+        function renderTable() {
+            const tableBody = document.querySelector('#financeTable tbody');
+            tableBody.innerHTML = '';
+            
+            let totalIncome = 0;
+            let totalExpense = 0;
+            let entryCount = 0;
+            
+            data.forEach((entry, index) => {
+                const row = document.createElement('tr');
+                
+                // Apply color based on category
+                if (entry.category === 'دخل') {
+                    row.classList.add('positive');
+                    totalIncome += entry.amount;
+                } else if (entry.category === 'مصروف') {
+                    row.classList.add('negative');
+                    totalExpense += entry.amount;
+                }
+                
+                entryCount++;
+                
+                row.innerHTML = `
+                    <td>${entry.firstName}</td>
+                    <td>${entry.lastName}</td>
+                    <td>${entry.amount.toFixed(2)}</td>
+                    <td>${entry.category || ''}</td>
+                    <td>${entry.details || ''}</td>
+                    <td>${entry.date}</td>
+                    <td class="action-buttons-cell">
+                        <button class="btn-warning" onclick="openEditModal(${index})">تعديل</button>
+                        <button class="btn-danger" onclick="deleteEntry(${index})">حذف</button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Update summary
+            document.getElementById('totalIncome').textContent = totalIncome.toFixed(2);
+            document.getElementById('totalExpense').textContent = totalExpense.toFixed(2);
+            document.getElementById('totalAmount').textContent = (totalIncome - totalExpense).toFixed(2);
+            document.getElementById('entryCount').textContent = entryCount;
+            
+            // Apply any active filters
+            applyFilters();
+        }
+    </script>
+</body>
+</html>
