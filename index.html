@@ -23,6 +23,10 @@
             --button-warning: #f39c12;
         }
         
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             direction: rtl;
@@ -30,7 +34,8 @@
             margin: 0;
             padding: 20px;
             color: var(--dark-text);
-            background-color: var(--light-bg);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
         }
         
         .container {
@@ -38,8 +43,14 @@
             margin: 0 auto;
             padding: 20px;
             background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         header {
@@ -49,6 +60,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            animation: slideInFromTop 0.6s ease-out;
+        }
+        
+        @keyframes slideInFromTop {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .logo-title {
@@ -65,6 +82,11 @@
         h2 {
             color: var(--primary-color);
             margin: 0;
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .form-group {
@@ -72,6 +94,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            animation: fadeIn 0.8s ease-out 0.2s both;
         }
         
         .form-control {
@@ -79,34 +102,90 @@
             flex-direction: column;
             flex: 1;
             min-width: 200px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus-within {
+            transform: translateY(-3px);
+        }
+        
+        .form-control:focus-within label {
+            color: var(--secondary-color);
+            font-weight: bold;
         }
         
         label {
             margin-bottom: 5px;
             font-weight: bold;
+            transition: color 0.3s ease;
         }
         
         input, select {
-            padding: 10px;
+            padding: 12px;
             border: 1px solid var(--border-color);
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 14px;
             width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            transform: translateY(-2px);
         }
         
         button {
             cursor: pointer;
-            padding: 10px 15px;
+            padding: 12px 18px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             background-color: var(--secondary-color);
             color: white;
             font-weight: bold;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        button:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
         }
         
         button:hover {
-            filter: brightness(90%);
+            filter: brightness(110%);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:active {
+            transform: translateY(-1px);
         }
         
         .btn-primary {
@@ -133,29 +212,33 @@
         
         .search-box {
             margin: 20px 0;
-            padding: 10px;
+            padding: 15px;
             background-color: white;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.8s ease-out 0.4s both;
         }
         
         .table-responsive {
             overflow-x: auto;
             max-height: 500px;
             overflow-y: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.8s ease-out 0.6s both;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         
         th, td {
             border: 1px solid var(--border-color);
             padding: 12px;
             text-align: center;
+            transition: background-color 0.3s ease;
         }
         
         th {
@@ -163,38 +246,62 @@
             color: white;
             position: sticky;
             top: 0;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        th:hover {
+            background: var(--secondary-color);
+        }
+        
+        tbody tr {
+            animation: fadeIn 0.5s ease-out;
         }
         
         tbody tr:nth-child(even) {
             background-color: #f9f9f9;
         }
         
+        tbody tr:hover {
+            background-color: #f0f8ff;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+        
         .positive {
-            background-color: rgba(46, 204, 113, 0.2);
+            background-color: rgba(46, 204, 113, 0.1);
         }
         
         .negative {
-            background-color: rgba(231, 76, 60, 0.2);
+            background-color: rgba(231, 76, 60, 0.1);
         }
         
         .summary {
             margin-top: 20px;
-            padding: 15px;
-            background-color: white;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             display: flex;
             justify-content: space-between;
+            animation: fadeIn 0.8s ease-out 0.8s both;
         }
         
         .summary-item {
             text-align: center;
             flex: 1;
+            padding: 10px;
+            transition: transform 0.3s ease;
+        }
+        
+        .summary-item:hover {
+            transform: translateY(-5px);
         }
         
         .summary-value {
             font-size: 24px;
             font-weight: bold;
+            transition: all 0.3s ease;
         }
         
         .positive-text {
@@ -216,20 +323,33 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            animation: fadeIn 0.3s ease-out;
         }
         
         .modal-content {
             background-color: white;
-            padding: 20px;
-            border-radius: 8px;
+            padding: 25px;
+            border-radius: 12px;
             width: 90%;
             max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.4s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-50px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
         
         .close {
             float: left;
             cursor: pointer;
             font-size: 24px;
+            transition: color 0.3s ease;
+        }
+        
+        .close:hover {
+            color: var(--button-danger);
         }
         
         .filter-section {
@@ -246,12 +366,18 @@
         
         .import-export-section {
             margin: 20px 0;
-            padding: 15px;
-            background-color: var(--light-bg);
-            border-radius: 4px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 8px;
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            animation: slideInFromBottom 0.6s ease-out;
+        }
+        
+        @keyframes slideInFromBottom {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .file-input-wrapper {
@@ -273,33 +399,6 @@
         .btn-icon {
             margin-right: 5px;
             font-size: 1.1em;
-        }
-        
-        .tooltip {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 200px;
-            background-color: #555;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -100px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
         }
         
         .success-message, .error-message {
@@ -332,20 +431,26 @@
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
+            animation: fadeIn 0.8s ease-out;
         }
         
         .chart-container {
             flex: 1;
             min-width: 300px;
             background-color: white;
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .chart-container:hover {
+            transform: translateY(-5px);
         }
         
         .chart-title {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             font-weight: bold;
             color: var(--primary-color);
         }
@@ -355,13 +460,13 @@
             top: 20px;
             right: 20px;
             padding: 15px 20px;
-            border-radius: 4px;
+            border-radius: 8px;
             color: white;
             font-weight: bold;
             z-index: 1001;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             transform: translateX(150%);
-            transition: transform 0.3s ease;
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
         
         .notification.show {
@@ -369,19 +474,20 @@
         }
         
         .notification.success {
-            background-color: var(--positive-color);
+            background: linear-gradient(135deg, var(--positive-color), #27ae60);
         }
         
         .notification.error {
-            background-color: var(--negative-color);
+            background: linear-gradient(135deg, var(--negative-color), #c0392b);
         }
         
         .notification.info {
-            background-color: var(--secondary-color);
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
         }
         
         .subcategory-control {
             display: none;
+            animation: fadeIn 0.5s ease-out;
         }
         
         .quick-actions {
@@ -389,6 +495,7 @@
             gap: 10px;
             margin: 15px 0;
             flex-wrap: wrap;
+            animation: fadeIn 0.8s ease-out 0.3s both;
         }
         
         .quick-action-btn {
@@ -400,6 +507,49 @@
         .quick-action-btn:hover {
             background-color: var(--secondary-color);
             color: white;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .shake {
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .fade-out {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         @media print {
@@ -738,6 +888,9 @@
             
             renderTable();
             populateSubcategory('subcategory', 'دخل'); // Default subcategory
+            
+            // Add animation to summary values
+            animateSummaryValues();
         };
         
         // Save data to localStorage
@@ -745,25 +898,43 @@
             localStorage.setItem('financeData', JSON.stringify(data));
         }
         
-        // Show notification
+        // Show notification with animation
         function showNotification(message, type = 'success') {
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.className = `notification ${type}`;
             notification.classList.add('show');
             
+            // Add pulse animation for important notifications
+            if (type === 'error' || type === 'info') {
+                notification.classList.add('pulse');
+            }
+            
             setTimeout(() => {
                 notification.classList.remove('show');
+                notification.classList.remove('pulse');
             }, 3000);
         }
         
-        // Toggle import/export section
+        // Toggle import/export section with animation
         function showImportExportSection() {
             const section = document.getElementById('importExportSection');
-            section.style.display = section.style.display === 'none' ? 'flex' : 'none';
+            if (section.style.display === 'none') {
+                section.style.display = 'flex';
+                section.classList.add('pulse');
+                setTimeout(() => {
+                    section.classList.remove('pulse');
+                }, 1000);
+            } else {
+                section.classList.add('fade-out');
+                setTimeout(() => {
+                    section.style.display = 'none';
+                    section.classList.remove('fade-out');
+                }, 500);
+            }
         }
         
-        // Toggle charts section
+        // Toggle charts section with animation
         function toggleCharts() {
             const section = document.getElementById('chartsSection');
             const button = document.getElementById('toggleChartsBtn');
@@ -773,8 +944,12 @@
                 button.innerHTML = '<span class="btn-icon">📊</span> إخفاء المخططات';
                 renderCharts();
             } else {
-                section.style.display = 'none';
-                button.innerHTML = '<span class="btn-icon">📊</span> عرض المخططات';
+                section.classList.add('fade-out');
+                setTimeout(() => {
+                    section.style.display = 'none';
+                    section.classList.remove('fade-out');
+                    button.innerHTML = '<span class="btn-icon">📊</span> عرض المخططات';
+                }, 500);
             }
         }
         
@@ -819,6 +994,10 @@
                             position: 'bottom',
                             rtl: true
                         }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
                     }
                 }
             });
@@ -872,12 +1051,16 @@
                             stacked: false,
                             beginAtZero: true
                         }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
                     }
                 }
             });
         }
         
-        // Toggle subcategory visibility based on selected category
+        // Toggle subcategory visibility with animation
         function toggleSubcategory() {
             const category = document.getElementById('category').value;
             const subcategoryControl = document.getElementById('subcategoryControl');
@@ -890,7 +1073,7 @@
             }
         }
         
-        // Toggle edit subcategory visibility
+        // Toggle edit subcategory visibility with animation
         function toggleEditSubcategory() {
             const category = document.getElementById('editCategory').value;
             const subcategoryControl = document.getElementById('editSubcategoryControl');
@@ -918,54 +1101,92 @@
             }
         }
         
-        // Quick add function
+        // Quick add function with animation
         function quickAdd(category) {
             document.getElementById('category').value = category;
             document.getElementById('details').value = `${category} سريع`;
             document.getElementById('amount').focus();
             toggleSubcategory();
+            
+            // Add animation to the form
+            const form = document.querySelector('.form-group');
+            form.classList.add('pulse');
+            setTimeout(() => {
+                form.classList.remove('pulse');
+            }, 1000);
         }
         
-        // Clear all data
+        // Clear all data with confirmation animation
         function clearAllData() {
             if (confirm('هل أنت متأكد من مسح جميع البيانات؟ لا يمكن التراجع عن هذا الإجراء.')) {
-                data = [];
-                saveData();
-                renderTable();
-                showNotification('تم مسح جميع البيانات بنجاح', 'info');
+                // Add loading animation
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '<div class="loading"></div> جاري المسح...';
+                button.disabled = true;
+                
+                setTimeout(() => {
+                    data = [];
+                    saveData();
+                    renderTable();
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    showNotification('تم مسح جميع البيانات بنجاح', 'info');
+                }, 1000);
             }
         }
         
         // Print report
         function printReport() {
-            window.print();
+            // Add print animation
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<div class="loading"></div> جاري التحضير...';
+            
+            setTimeout(() => {
+                window.print();
+                button.innerHTML = originalText;
+            }, 500);
         }
         
-        // Export to JSON
+        // Export to JSON with loading animation
         function exportToJSON() {
             if (data.length === 0) {
                 showNotification('لا توجد بيانات للتصدير', 'error');
                 return;
             }
             
-            const dataStr = JSON.stringify(data, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            // Add loading animation
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<div class="loading"></div> جاري التصدير...';
             
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = `finance_data_${new Date().toISOString().slice(0, 10)}.json`;
-            link.click();
-            
-            showNotification('تم تصدير البيانات إلى ملف JSON بنجاح');
+            setTimeout(() => {
+                const dataStr = JSON.stringify(data, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `finance_data_${new Date().toISOString().slice(0, 10)}.json`;
+                link.click();
+                
+                button.innerHTML = originalText;
+                showNotification('تم تصدير البيانات إلى ملف JSON بنجاح');
+            }, 800);
         }
         
-        // Import from JSON
+        // Import from JSON with loading animation
         function importFromJSON(input) {
             const file = input.files[0];
             
             if (!file) {
                 return;
             }
+            
+            // Add loading animation
+            const button = input.previousElementSibling;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<div class="loading"></div> جاري الاستيراد...';
             
             const reader = new FileReader();
             
@@ -984,13 +1205,18 @@
                                 renderCharts();
                             }
                             
+                            button.innerHTML = originalText;
                             showNotification(`تم استيراد ${importedData.length} سجلات بنجاح`);
+                        } else {
+                            button.innerHTML = originalText;
                         }
                     } else {
+                        button.innerHTML = originalText;
                         showNotification('لم يتم العثور على بيانات صالحة في الملف', 'error');
                     }
                 } catch (error) {
                     console.error('Error importing JSON file:', error);
+                    button.innerHTML = originalText;
                     showNotification('حدث خطأ أثناء معالجة الملف. يرجى التأكد من صيغة الملف', 'error');
                 }
             };
@@ -998,7 +1224,7 @@
             reader.readAsText(file);
         }
         
-        // Add a new entry
+        // Add a new entry with animation
         function addEntry() {
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
@@ -1009,6 +1235,13 @@
             const date = document.getElementById('date').value;
             
             if (!firstName || !lastName || isNaN(amount) || !date || !category) {
+                // Add shake animation to indicate error
+                const form = document.querySelector('.form-group');
+                form.classList.add('shake');
+                setTimeout(() => {
+                    form.classList.remove('shake');
+                }, 500);
+                
                 showNotification('يرجى ملء جميع الحقول المطلوبة', 'error');
                 return;
             }
@@ -1048,23 +1281,29 @@
             document.getElementById('subcategoryControl').style.display = 'none';
         }
         
-        // Delete entry by index
+        // Delete entry by index with animation
         function deleteEntry(index) {
             if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
-                data.splice(index, 1);
-                saveData();
-                renderTable();
+                // Add fade out animation to the row
+                const row = event.target.closest('tr');
+                row.classList.add('fade-out');
                 
-                // Update charts if visible
-                if (document.getElementById('chartsSection').style.display !== 'none') {
-                    renderCharts();
-                }
-                
-                showNotification('تم حذف السجل بنجاح');
+                setTimeout(() => {
+                    data.splice(index, 1);
+                    saveData();
+                    renderTable();
+                    
+                    // Update charts if visible
+                    if (document.getElementById('chartsSection').style.display !== 'none') {
+                        renderCharts();
+                    }
+                    
+                    showNotification('تم حذف السجل بنجاح');
+                }, 500);
             }
         }
         
-        // Open the edit modal
+        // Open the edit modal with animation
         function openEditModal(index) {
             editingIndex = index;
             const entry = data[index];
@@ -1089,12 +1328,18 @@
             document.getElementById('editModal').style.display = 'flex';
         }
         
-        // Close the edit modal
+        // Close the edit modal with animation
         function closeModal() {
-            document.getElementById('editModal').style.display = 'none';
+            const modal = document.getElementById('editModal');
+            modal.classList.add('fade-out');
+            
+            setTimeout(() => {
+                modal.style.display = 'none';
+                modal.classList.remove('fade-out');
+            }, 300);
         }
         
-        // Save edited entry
+        // Save edited entry with animation
         function saveEdit() {
             const index = parseInt(document.getElementById('editIndex').value);
             const firstName = document.getElementById('editFirstName').value.trim();
@@ -1106,6 +1351,13 @@
             const date = document.getElementById('editDate').value;
             
             if (!firstName || !lastName || isNaN(amount) || !date || !category) {
+                // Add shake animation to indicate error
+                const modalContent = document.querySelector('.modal-content');
+                modalContent.classList.add('shake');
+                setTimeout(() => {
+                    modalContent.classList.remove('shake');
+                }, 500);
+                
                 showNotification('يرجى ملء جميع الحقول المطلوبة', 'error');
                 return;
             }
@@ -1160,15 +1412,29 @@
             });
         }
         
-        // Reset all filters
+        // Reset all filters with animation
         function resetFilters() {
-            document.getElementById('searchBox').value = '';
-            document.getElementById('categoryFilter').value = '';
-            document.getElementById('dateFilter').value = '';
+            const searchBox = document.getElementById('searchBox');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const dateFilter = document.getElementById('dateFilter');
+            
+            // Add animation to reset
+            [searchBox, categoryFilter, dateFilter].forEach(element => {
+                element.classList.add('pulse');
+                setTimeout(() => {
+                    element.classList.remove('pulse');
+                }, 500);
+            });
+            
+            searchBox.value = '';
+            categoryFilter.value = '';
+            dateFilter.value = '';
             applyFilters();
+            
+            showNotification('تم إعادة تعيين الفلاتر', 'info');
         }
         
-        // Sort table by column
+        // Sort table by column with animation
         function sortTable(columnIndex) {
             // Toggle sorting direction if same column is clicked
             if (currentSort.column === columnIndex) {
@@ -1177,6 +1443,13 @@
                 currentSort.column = columnIndex;
                 currentSort.ascending = true;
             }
+            
+            // Add animation to the header
+            const header = event.target;
+            header.classList.add('pulse');
+            setTimeout(() => {
+                header.classList.remove('pulse');
+            }, 500);
             
             // Sort the data array
             data.sort((a, b) => {
@@ -1219,49 +1492,62 @@
             });
         }
         
-        // Export data to Excel
+        // Export data to Excel with loading animation
         function exportToExcel() {
             if (data.length === 0) {
                 showNotification('لا توجد بيانات للتصدير', 'error');
                 return;
             }
             
-            // Format data for Excel
-            const excelData = [['الاسم الأول', 'الاسم الثاني', 'المبلغ', 'التصنيف', 'التصنيف الفرعي', 'التفاصيل', 'التاريخ']];
+            // Add loading animation
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<div class="loading"></div> جاري التصدير...';
             
-            data.forEach(entry => {
-                excelData.push([
-                    entry.firstName,
-                    entry.lastName,
-                    entry.amount,
-                    entry.category || '',
-                    entry.subcategory || '',
-                    entry.details || '',
-                    entry.date
-                ]);
-            });
-            
-            // Create workbook and worksheet
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(excelData);
-            
-            // Add worksheet to workbook
-            XLSX.utils.book_append_sheet(wb, ws, "FinanceData");
-            
-            // Write file and trigger download
-            const today = new Date().toISOString().slice(0, 10);
-            XLSX.writeFile(wb, `financial_data_${today}.xlsx`);
-            
-            showNotification('تم تصدير البيانات إلى ملف Excel بنجاح');
+            setTimeout(() => {
+                // Format data for Excel
+                const excelData = [['الاسم الأول', 'الاسم الثاني', 'المبلغ', 'التصنيف', 'التصنيف الفرعي', 'التفاصيل', 'التاريخ']];
+                
+                data.forEach(entry => {
+                    excelData.push([
+                        entry.firstName,
+                        entry.lastName,
+                        entry.amount,
+                        entry.category || '',
+                        entry.subcategory || '',
+                        entry.details || '',
+                        entry.date
+                    ]);
+                });
+                
+                // Create workbook and worksheet
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(excelData);
+                
+                // Add worksheet to workbook
+                XLSX.utils.book_append_sheet(wb, ws, "FinanceData");
+                
+                // Write file and trigger download
+                const today = new Date().toISOString().slice(0, 10);
+                XLSX.writeFile(wb, `financial_data_${today}.xlsx`);
+                
+                button.innerHTML = originalText;
+                showNotification('تم تصدير البيانات إلى ملف Excel بنجاح');
+            }, 800);
         }
         
-        // Import data from Excel file
+        // Import data from Excel file with loading animation
         function importFromExcel(input) {
             const file = input.files[0];
             
             if (!file) {
                 return;
             }
+            
+            // Add loading animation
+            const button = input.previousElementSibling;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<div class="loading"></div> جاري الاستيراد...';
             
             const reader = new FileReader();
             
@@ -1308,16 +1594,22 @@
                                     renderCharts();
                                 }
                                 
+                                button.innerHTML = originalText;
                                 showNotification(`تم استيراد ${importedData.length} سجلات بنجاح`);
+                            } else {
+                                button.innerHTML = originalText;
                             }
                         } else {
+                            button.innerHTML = originalText;
                             showNotification('لم يتم العثور على بيانات صالحة في الملف', 'error');
                         }
                     } else {
+                        button.innerHTML = originalText;
                         showNotification('لم يتم العثور على بيانات في الملف', 'error');
                     }
                 } catch (error) {
                     console.error('Error importing Excel file:', error);
+                    button.innerHTML = originalText;
                     showNotification('حدث خطأ أثناء معالجة الملف. يرجى التأكد من صيغة الملف', 'error');
                 }
             };
@@ -1325,88 +1617,107 @@
             reader.readAsArrayBuffer(file);
         }
         
-        // Export data to PDF
+        // Export data to PDF with loading animation
         function exportToPDF() {
             if (data.length === 0) {
                 showNotification('لا توجد بيانات للتصدير', 'error');
                 return;
             }
 
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            // Add loading animation
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<div class="loading"></div> جاري التصدير...';
 
-            // Add title
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(18);
-            doc.text('كشف الحسابات المالية', 105, 15, { align: 'center' });
+            setTimeout(() => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
 
-            // Add date
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(12);
-            const today = new Date().toLocaleDateString('ar-EG');
-            doc.text(`تاريخ التقرير: ${today}`, 105, 25, { align: 'center' });
+                // Add title
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(18);
+                doc.text('كشف الحسابات المالية', 105, 15, { align: 'center' });
 
-            // Prepare table data
-            const tableData = [
-                ['الاسم', 'المبلغ', 'التصنيف', 'التصنيف الفرعي', 'التفاصيل', 'التاريخ']
-            ];
+                // Add date
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(12);
+                const today = new Date().toLocaleDateString('ar-EG');
+                doc.text(`تاريخ التقرير: ${today}`, 105, 25, { align: 'center' });
 
-            data.forEach(entry => {
-                tableData.push([
-                    `${entry.firstName} ${entry.lastName}`,
-                    entry.amount.toFixed(2),
-                    entry.category || '',
-                    entry.subcategory || '',
-                    entry.details || '',
-                    entry.date
-                ]);
+                // Prepare table data
+                const tableData = [
+                    ['الاسم', 'المبلغ', 'التصنيف', 'التصنيف الفرعي', 'التفاصيل', 'التاريخ']
+                ];
+
+                data.forEach(entry => {
+                    tableData.push([
+                        `${entry.firstName} ${entry.lastName}`,
+                        entry.amount.toFixed(2),
+                        entry.category || '',
+                        entry.subcategory || '',
+                        entry.details || '',
+                        entry.date
+                    ]);
+                });
+
+                // Add table
+                doc.autoTable({
+                    head: [tableData[0]],
+                    body: tableData.slice(1),
+                    startY: 30,
+                    styles: {
+                        font: 'helvetica',
+                        fontSize: 8,
+                        halign: 'center'
+                    },
+                    headStyles: {
+                        fillColor: [44, 62, 80],
+                        textColor: 255,
+                        fontStyle: 'bold'
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 30 },
+                        1: { cellWidth: 25 },
+                        2: { cellWidth: 25 },
+                        3: { cellWidth: 25 },
+                        4: { cellWidth: 40 },
+                        5: { cellWidth: 30 }
+                    }
+                });
+
+                // Add summary
+                const summaryY = doc.lastAutoTable.finalY + 10;
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('ملخص الحسابات', 105, summaryY, { align: 'center' });
+
+                doc.setFont('helvetica', 'normal');
+                const income = data.filter(d => d.category === 'دخل').reduce((sum, d) => sum + d.amount, 0);
+                const expense = data.filter(d => d.category === 'مصروف').reduce((sum, d) => sum + d.amount, 0);
+                const balance = income - expense;
+
+                doc.text(`الإيرادات: ${income.toFixed(2)}`, 105, summaryY + 10, { align: 'center' });
+                doc.text(`المصروفات: ${expense.toFixed(2)}`, 105, summaryY + 20, { align: 'center' });
+                doc.text(`الرصيد الحالي: ${balance.toFixed(2)}`, 105, summaryY + 30, { align: 'center' });
+
+                // Save the PDF
+                const todayStr = new Date().toISOString().slice(0, 10);
+                doc.save(`financial_report_${todayStr}.pdf`);
+
+                button.innerHTML = originalText;
+                showNotification('تم تصدير البيانات إلى ملف PDF بنجاح');
+            }, 800);
+        }
+        
+        // Animate summary values
+        function animateSummaryValues() {
+            const summaryValues = document.querySelectorAll('.summary-value');
+            summaryValues.forEach(value => {
+                value.classList.add('pulse');
+                setTimeout(() => {
+                    value.classList.remove('pulse');
+                }, 2000);
             });
-
-            // Add table
-            doc.autoTable({
-                head: [tableData[0]],
-                body: tableData.slice(1),
-                startY: 30,
-                styles: {
-                    font: 'helvetica',
-                    fontSize: 8,
-                    halign: 'center'
-                },
-                headStyles: {
-                    fillColor: [44, 62, 80],
-                    textColor: 255,
-                    fontStyle: 'bold'
-                },
-                columnStyles: {
-                    0: { cellWidth: 30 },
-                    1: { cellWidth: 25 },
-                    2: { cellWidth: 25 },
-                    3: { cellWidth: 25 },
-                    4: { cellWidth: 40 },
-                    5: { cellWidth: 30 }
-                }
-            });
-
-            // Add summary
-            const summaryY = doc.lastAutoTable.finalY + 10;
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'bold');
-            doc.text('ملخص الحسابات', 105, summaryY, { align: 'center' });
-
-            doc.setFont('helvetica', 'normal');
-            const income = data.filter(d => d.category === 'دخل').reduce((sum, d) => sum + d.amount, 0);
-            const expense = data.filter(d => d.category === 'مصروف').reduce((sum, d) => sum + d.amount, 0);
-            const balance = income - expense;
-
-            doc.text(`الإيرادات: ${income.toFixed(2)}`, 105, summaryY + 10, { align: 'center' });
-            doc.text(`المصروفات: ${expense.toFixed(2)}`, 105, summaryY + 20, { align: 'center' });
-            doc.text(`الرصيد الحالي: ${balance.toFixed(2)}`, 105, summaryY + 30, { align: 'center' });
-
-            // Save the PDF
-            const todayStr = new Date().toISOString().slice(0, 10);
-            doc.save(`financial_report_${todayStr}.pdf`);
-
-            showNotification('تم تصدير البيانات إلى ملف PDF بنجاح');
         }
         
         // Render the table with current data
@@ -1449,14 +1760,44 @@
                 tableBody.appendChild(row);
             });
             
-            // Update summary
-            document.getElementById('totalIncome').textContent = totalIncome.toFixed(2);
-            document.getElementById('totalExpense').textContent = totalExpense.toFixed(2);
-            document.getElementById('totalAmount').textContent = (totalIncome - totalExpense).toFixed(2);
-            document.getElementById('entryCount').textContent = entryCount;
+            // Update summary with animation
+            const incomeElement = document.getElementById('totalIncome');
+            const expenseElement = document.getElementById('totalExpense');
+            const amountElement = document.getElementById('totalAmount');
+            const countElement = document.getElementById('entryCount');
+            
+            // Animate value changes
+            animateValue(incomeElement, parseFloat(incomeElement.textContent) || 0, totalIncome);
+            animateValue(expenseElement, parseFloat(expenseElement.textContent) || 0, totalExpense);
+            animateValue(amountElement, parseFloat(amountElement.textContent) || 0, totalIncome - totalExpense);
+            animateValue(countElement, parseInt(countElement.textContent) || 0, entryCount);
             
             // Apply any active filters
             applyFilters();
+        }
+        
+        // Animate value changes
+        function animateValue(element, start, end) {
+            const duration = 800;
+            const startTime = performance.now();
+            
+            function updateValue(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Use easing function for smoother animation
+                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                const currentValue = start + (end - start) * easeOutQuart;
+                
+                element.textContent = Number.isInteger(end) ? 
+                    Math.round(currentValue) : currentValue.toFixed(2);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateValue);
+                }
+            }
+            
+            requestAnimationFrame(updateValue);
         }
     </script>
 </body>
