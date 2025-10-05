@@ -39,7 +39,7 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
             background-color: white;
@@ -101,7 +101,7 @@
             display: flex;
             flex-direction: column;
             flex: 1;
-            min-width: 200px;
+            min-width: 180px;
             transition: all 0.3s ease;
         }
         
@@ -134,6 +134,11 @@
             border-color: var(--secondary-color);
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
             transform: translateY(-2px);
+        }
+        
+        .phone-input {
+            direction: ltr;
+            text-align: left;
         }
         
         button {
@@ -276,6 +281,12 @@
             background-color: rgba(231, 76, 60, 0.1);
         }
         
+        .phone-cell {
+            direction: ltr;
+            text-align: left;
+            font-family: monospace;
+        }
+        
         .summary {
             margin-top: 20px;
             padding: 20px;
@@ -331,7 +342,7 @@
             padding: 25px;
             border-radius: 12px;
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             animation: modalSlideIn 0.4s ease-out;
         }
@@ -552,6 +563,17 @@
             to { transform: rotate(360deg); }
         }
         
+        .phone-link {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .phone-link:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+        
         @media print {
             body {
                 background-color: white;
@@ -718,6 +740,10 @@
                 <input type="text" id="lastName" placeholder="أدخل الاسم الثاني">
             </div>
             <div class="form-control">
+                <label for="phone">رقم الهاتف:</label>
+                <input type="tel" id="phone" class="phone-input" placeholder="مثال: 0512345678" pattern="[0-9]{10}" maxlength="10">
+            </div>
+            <div class="form-control">
                 <label for="amount">المبلغ:</label>
                 <input type="number" id="amount" placeholder="أدخل المبلغ" step="0.01">
             </div>
@@ -754,7 +780,7 @@
             <div class="filter-section">
                 <div class="filter-control">
                     <label for="searchBox">بحث:</label>
-                    <input type="text" id="searchBox" placeholder="بحث بالاسم أو التفاصيل" onkeyup="applyFilters()">
+                    <input type="text" id="searchBox" placeholder="بحث بالاسم أو التفاصيل أو الهاتف" onkeyup="applyFilters()">
                 </div>
                 <div class="filter-control">
                     <label for="categoryFilter">تصفية حسب التصنيف:</label>
@@ -782,11 +808,12 @@
                     <tr>
                         <th onclick="sortTable(0)">الاسم الأول ▼</th>
                         <th onclick="sortTable(1)">الاسم الثاني ▼</th>
-                        <th onclick="sortTable(2)">المبلغ ▼</th>
-                        <th onclick="sortTable(3)">التصنيف ▼</th>
-                        <th onclick="sortTable(4)">التصنيف الفرعي ▼</th>
-                        <th onclick="sortTable(5)">التفاصيل ▼</th>
-                        <th onclick="sortTable(6)">التاريخ ▼</th>
+                        <th onclick="sortTable(2)">رقم الهاتف ▼</th>
+                        <th onclick="sortTable(3)">المبلغ ▼</th>
+                        <th onclick="sortTable(4)">التصنيف ▼</th>
+                        <th onclick="sortTable(5)">التصنيف الفرعي ▼</th>
+                        <th onclick="sortTable(6)">التفاصيل ▼</th>
+                        <th onclick="sortTable(7)">التاريخ ▼</th>
                         <th>إجراء</th>
                     </tr>
                 </thead>
@@ -827,6 +854,10 @@
                 <div class="form-control">
                     <label for="editLastName">الاسم الثاني:</label>
                     <input type="text" id="editLastName">
+                </div>
+                <div class="form-control">
+                    <label for="editPhone">رقم الهاتف:</label>
+                    <input type="tel" id="editPhone" class="phone-input" pattern="[0-9]{10}" maxlength="10">
                 </div>
                 <div class="form-control">
                     <label for="editAmount">المبلغ:</label>
@@ -891,7 +922,41 @@
             
             // Add animation to summary values
             animateSummaryValues();
+            
+            // Add input validation for phone number
+            document.getElementById('phone').addEventListener('input', function(e) {
+                formatPhoneNumber(e.target);
+            });
+            
+            document.getElementById('editPhone').addEventListener('input', function(e) {
+                formatPhoneNumber(e.target);
+            });
         };
+        
+        // Format phone number as user types
+        function formatPhoneNumber(input) {
+            // Remove all non-digit characters
+            let value = input.value.replace(/\D/g, '');
+            
+            // Limit to 10 digits
+            if (value.length > 10) {
+                value = value.substring(0, 10);
+            }
+            
+            // Format as 05X XXX XXXX
+            if (value.length > 0) {
+                value = value.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
+            }
+            
+            input.value = value;
+        }
+        
+        // Validate phone number
+        function validatePhoneNumber(phone) {
+            // Remove spaces and check if it's exactly 10 digits
+            const cleaned = phone.replace(/\s/g, '');
+            return /^05\d{8}$/.test(cleaned);
+        }
         
         // Save data to localStorage
         function saveData() {
@@ -1228,6 +1293,7 @@
         function addEntry() {
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
             const amount = parseFloat(document.getElementById('amount').value);
             const category = document.getElementById('category').value;
             const subcategory = document.getElementById('subcategory').value;
@@ -1246,9 +1312,20 @@
                 return;
             }
             
+            // Validate phone number if provided
+            if (phone && !validatePhoneNumber(phone)) {
+                document.getElementById('phone').classList.add('shake');
+                setTimeout(() => {
+                    document.getElementById('phone').classList.remove('shake');
+                }, 500);
+                showNotification('يرجى إدخال رقم هاتف صحيح (10 أرقام تبدأ بـ 05)', 'error');
+                return;
+            }
+            
             const entry = {
                 firstName,
                 lastName,
+                phone: phone || '',
                 amount,
                 category,
                 subcategory,
@@ -1274,6 +1351,7 @@
         function clearForm() {
             document.getElementById('firstName').value = '';
             document.getElementById('lastName').value = '';
+            document.getElementById('phone').value = '';
             document.getElementById('amount').value = '';
             document.getElementById('category').value = '';
             document.getElementById('details').value = '';
@@ -1310,6 +1388,7 @@
             
             document.getElementById('editFirstName').value = entry.firstName;
             document.getElementById('editLastName').value = entry.lastName;
+            document.getElementById('editPhone').value = entry.phone || '';
             document.getElementById('editAmount').value = entry.amount;
             document.getElementById('editCategory').value = entry.category || 'دخل';
             document.getElementById('editDetails').value = entry.details || '';
@@ -1344,6 +1423,7 @@
             const index = parseInt(document.getElementById('editIndex').value);
             const firstName = document.getElementById('editFirstName').value.trim();
             const lastName = document.getElementById('editLastName').value.trim();
+            const phone = document.getElementById('editPhone').value.trim();
             const amount = parseFloat(document.getElementById('editAmount').value);
             const category = document.getElementById('editCategory').value;
             const subcategory = document.getElementById('editSubcategory').value;
@@ -1362,9 +1442,20 @@
                 return;
             }
             
+            // Validate phone number if provided
+            if (phone && !validatePhoneNumber(phone)) {
+                document.getElementById('editPhone').classList.add('shake');
+                setTimeout(() => {
+                    document.getElementById('editPhone').classList.remove('shake');
+                }, 500);
+                showNotification('يرجى إدخال رقم هاتف صحيح (10 أرقام تبدأ بـ 05)', 'error');
+                return;
+            }
+            
             data[index] = {
                 firstName,
                 lastName,
+                phone: phone || '',
                 amount,
                 category,
                 subcategory,
@@ -1396,13 +1487,15 @@
             rows.forEach(row => {
                 const firstName = row.cells[0].textContent.toLowerCase();
                 const lastName = row.cells[1].textContent.toLowerCase();
-                const category = row.cells[3].textContent;
-                const details = row.cells[5].textContent.toLowerCase();
-                const date = row.cells[6].textContent;
+                const phone = row.cells[2].textContent.toLowerCase();
+                const category = row.cells[4].textContent;
+                const details = row.cells[6].textContent.toLowerCase();
+                const date = row.cells[7].textContent;
                 
                 const matchesSearch = searchText === '' || 
                     firstName.includes(searchText) || 
                     lastName.includes(searchText) || 
+                    phone.includes(searchText) ||
                     details.includes(searchText);
                     
                 const matchesCategory = categoryFilter === '' || category === categoryFilter;
@@ -1459,16 +1552,17 @@
                 switch(columnIndex) {
                     case 0: valueA = a.firstName; valueB = b.firstName; break;
                     case 1: valueA = a.lastName; valueB = b.lastName; break;
-                    case 2: valueA = a.amount; valueB = b.amount; break;
-                    case 3: valueA = a.category || ''; valueB = b.category || ''; break;
-                    case 4: valueA = a.subcategory || ''; valueB = b.subcategory || ''; break;
-                    case 5: valueA = a.details; valueB = b.details; break;
-                    case 6: valueA = a.date; valueB = b.date; break;
+                    case 2: valueA = a.phone || ''; valueB = b.phone || ''; break;
+                    case 3: valueA = a.amount; valueB = b.amount; break;
+                    case 4: valueA = a.category || ''; valueB = b.category || ''; break;
+                    case 5: valueA = a.subcategory || ''; valueB = b.subcategory || ''; break;
+                    case 6: valueA = a.details; valueB = b.details; break;
+                    case 7: valueA = a.date; valueB = b.date; break;
                     default: valueA = a.timestamp; valueB = b.timestamp;
                 }
                 
                 // Sort comparison
-                if (columnIndex === 2) { // Numeric sort for amount
+                if (columnIndex === 3) { // Numeric sort for amount
                     return currentSort.ascending ? valueA - valueB : valueB - valueA;
                 } else {
                     // String comparison for text
@@ -1486,7 +1580,7 @@
                 if (index === columnIndex) {
                     header.textContent = header.textContent.replace(/[▼▲]/, '');
                     header.textContent += currentSort.ascending ? ' ▼' : ' ▲';
-                } else if (index < 7) {
+                } else if (index < 8) {
                     header.textContent = header.textContent.replace(/[▼▲]/, '') + ' ▼';
                 }
             });
@@ -1506,12 +1600,13 @@
             
             setTimeout(() => {
                 // Format data for Excel
-                const excelData = [['الاسم الأول', 'الاسم الثاني', 'المبلغ', 'التصنيف', 'التصنيف الفرعي', 'التفاصيل', 'التاريخ']];
+                const excelData = [['الاسم الأول', 'الاسم الثاني', 'رقم الهاتف', 'المبلغ', 'التصنيف', 'التصنيف الفرعي', 'التفاصيل', 'التاريخ']];
                 
                 data.forEach(entry => {
                     excelData.push([
                         entry.firstName,
                         entry.lastName,
+                        entry.phone || '',
                         entry.amount,
                         entry.category || '',
                         entry.subcategory || '',
@@ -1569,15 +1664,16 @@
                         
                         for (let i = 1; i < jsonData.length; i++) {
                             const row = jsonData[i];
-                            if (row.length >= 6) {
+                            if (row.length >= 7) {
                                 importedData.push({
                                     firstName: row[0] || '',
                                     lastName: row[1] || '',
-                                    amount: parseFloat(row[2]) || 0,
-                                    category: row[3] || '',
-                                    subcategory: row[4] || '',
-                                    details: row[5] || '',
-                                    date: row[6] || new Date().toISOString().slice(0, 10),
+                                    phone: row[2] || '',
+                                    amount: parseFloat(row[3]) || 0,
+                                    category: row[4] || '',
+                                    subcategory: row[5] || '',
+                                    details: row[6] || '',
+                                    date: row[7] || new Date().toISOString().slice(0, 10),
                                     timestamp: new Date().getTime()
                                 });
                             }
@@ -1646,12 +1742,13 @@
 
                 // Prepare table data
                 const tableData = [
-                    ['الاسم', 'المبلغ', 'التصنيف', 'التصنيف الفرعي', 'التفاصيل', 'التاريخ']
+                    ['الاسم', 'رقم الهاتف', 'المبلغ', 'التصنيف', 'التصنيف الفرعي', 'التفاصيل', 'التاريخ']
                 ];
 
                 data.forEach(entry => {
                     tableData.push([
                         `${entry.firstName} ${entry.lastName}`,
+                        entry.phone || '',
                         entry.amount.toFixed(2),
                         entry.category || '',
                         entry.subcategory || '',
@@ -1678,10 +1775,11 @@
                     columnStyles: {
                         0: { cellWidth: 30 },
                         1: { cellWidth: 25 },
-                        2: { cellWidth: 25 },
-                        3: { cellWidth: 25 },
-                        4: { cellWidth: 40 },
-                        5: { cellWidth: 30 }
+                        2: { cellWidth: 20 },
+                        3: { cellWidth: 20 },
+                        4: { cellWidth: 25 },
+                        5: { cellWidth: 40 },
+                        6: { cellWidth: 25 }
                     }
                 });
 
@@ -1720,6 +1818,16 @@
             });
         }
         
+        // Format phone number for display
+        function formatPhoneForDisplay(phone) {
+            if (!phone) return '';
+            const cleaned = phone.replace(/\s/g, '');
+            if (cleaned.length === 10) {
+                return cleaned.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
+            }
+            return phone;
+        }
+        
         // Render the table with current data
         function renderTable() {
             const tableBody = document.querySelector('#financeTable tbody');
@@ -1743,9 +1851,15 @@
                 
                 entryCount++;
                 
+                const formattedPhone = formatPhoneForDisplay(entry.phone);
+                const phoneDisplay = formattedPhone ? 
+                    `<a href="tel:${formattedPhone.replace(/\s/g, '')}" class="phone-link">${formattedPhone}</a>` : 
+                    '';
+                
                 row.innerHTML = `
                     <td>${entry.firstName}</td>
                     <td>${entry.lastName}</td>
+                    <td class="phone-cell">${phoneDisplay}</td>
                     <td>${entry.amount.toFixed(2)}</td>
                     <td>${entry.category || ''}</td>
                     <td>${entry.subcategory || ''}</td>
