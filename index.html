@@ -741,7 +741,7 @@
             </div>
             <div class="form-control">
                 <label for="phone">رقم الهاتف:</label>
-                <input type="tel" id="phone" class="phone-input" placeholder="مثال: 0512345678" pattern="[0-9]{10}" maxlength="10">
+                <input type="tel" id="phone" class="phone-input" placeholder="أدخل أي رقم هاتف">
             </div>
             <div class="form-control">
                 <label for="amount">المبلغ:</label>
@@ -857,7 +857,7 @@
                 </div>
                 <div class="form-control">
                     <label for="editPhone">رقم الهاتف:</label>
-                    <input type="tel" id="editPhone" class="phone-input" pattern="[0-9]{10}" maxlength="10">
+                    <input type="tel" id="editPhone" class="phone-input">
                 </div>
                 <div class="form-control">
                     <label for="editAmount">المبلغ:</label>
@@ -922,41 +922,7 @@
             
             // Add animation to summary values
             animateSummaryValues();
-            
-            // Add input validation for phone number
-            document.getElementById('phone').addEventListener('input', function(e) {
-                formatPhoneNumber(e.target);
-            });
-            
-            document.getElementById('editPhone').addEventListener('input', function(e) {
-                formatPhoneNumber(e.target);
-            });
         };
-        
-        // Format phone number as user types
-        function formatPhoneNumber(input) {
-            // Remove all non-digit characters
-            let value = input.value.replace(/\D/g, '');
-            
-            // Limit to 10 digits
-            if (value.length > 10) {
-                value = value.substring(0, 10);
-            }
-            
-            // Format as 05X XXX XXXX
-            if (value.length > 0) {
-                value = value.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
-            }
-            
-            input.value = value;
-        }
-        
-        // Validate phone number
-        function validatePhoneNumber(phone) {
-            // Remove spaces and check if it's exactly 10 digits
-            const cleaned = phone.replace(/\s/g, '');
-            return /^05\d{8}$/.test(cleaned);
-        }
         
         // Save data to localStorage
         function saveData() {
@@ -1312,16 +1278,6 @@
                 return;
             }
             
-            // Validate phone number if provided
-            if (phone && !validatePhoneNumber(phone)) {
-                document.getElementById('phone').classList.add('shake');
-                setTimeout(() => {
-                    document.getElementById('phone').classList.remove('shake');
-                }, 500);
-                showNotification('يرجى إدخال رقم هاتف صحيح (10 أرقام تبدأ بـ 05)', 'error');
-                return;
-            }
-            
             const entry = {
                 firstName,
                 lastName,
@@ -1439,16 +1395,6 @@
                 }, 500);
                 
                 showNotification('يرجى ملء جميع الحقول المطلوبة', 'error');
-                return;
-            }
-            
-            // Validate phone number if provided
-            if (phone && !validatePhoneNumber(phone)) {
-                document.getElementById('editPhone').classList.add('shake');
-                setTimeout(() => {
-                    document.getElementById('editPhone').classList.remove('shake');
-                }, 500);
-                showNotification('يرجى إدخال رقم هاتف صحيح (10 أرقام تبدأ بـ 05)', 'error');
                 return;
             }
             
@@ -1818,16 +1764,6 @@
             });
         }
         
-        // Format phone number for display
-        function formatPhoneForDisplay(phone) {
-            if (!phone) return '';
-            const cleaned = phone.replace(/\s/g, '');
-            if (cleaned.length === 10) {
-                return cleaned.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
-            }
-            return phone;
-        }
-        
         // Render the table with current data
         function renderTable() {
             const tableBody = document.querySelector('#financeTable tbody');
@@ -1851,9 +1787,8 @@
                 
                 entryCount++;
                 
-                const formattedPhone = formatPhoneForDisplay(entry.phone);
-                const phoneDisplay = formattedPhone ? 
-                    `<a href="tel:${formattedPhone.replace(/\s/g, '')}" class="phone-link">${formattedPhone}</a>` : 
+                const phoneDisplay = entry.phone ? 
+                    `<a href="tel:${entry.phone.replace(/\s/g, '')}" class="phone-link">${entry.phone}</a>` : 
                     '';
                 
                 row.innerHTML = `
