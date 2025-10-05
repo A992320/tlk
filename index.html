@@ -763,8 +763,8 @@
         
         <div class="form-group">
             <div class="form-control">
-                <label for="firstName">الاسم الأول:</label>
-                <input type="text" id="firstName" placeholder="أدخل الاسم الأول">
+                <label for="firstName">اسم الاشتراك:</label>
+                <input type="text" id="firstName" placeholder="أدخل اسم الاشتراك">
             </div>
             <div class="form-control">
                 <label for="lastName">الاسم الثاني:</label>
@@ -856,7 +856,7 @@
             <table id="financeTable">
                 <thead>
                     <tr>
-                        <th onclick="sortTable(0)">الاسم الأول ▼</th>
+                        <th onclick="sortTable(0)">اسم الاشتراك ▼</th>
                         <th onclick="sortTable(1)">الاسم الثاني ▼</th>
                         <th onclick="sortTable(2)">رقم الهاتف ▼</th>
                         <th onclick="sortTable(3)">المبلغ ▼</th>
@@ -899,7 +899,7 @@
             <h3>تعديل البيانات</h3>
             <div class="form-group">
                 <div class="form-control">
-                    <label for="editFirstName">الاسم الأول:</label>
+                    <label for="editFirstName">اسم الاشتراك:</label>
                     <input type="text" id="editFirstName">
                 </div>
                 <div class="form-control">
@@ -1630,7 +1630,7 @@
             
             setTimeout(() => {
                 // Format data for Excel
-                const excelData = [['الاسم الأول', 'الاسم الثاني', 'رقم الهاتف', 'المبلغ', 'التصنيف', 'التصنيف الفرعي', 'حالة الاشتراك', 'التفاصيل', 'التاريخ']];
+                const excelData = [['اسم الاشتراك', 'الاسم الثاني', 'رقم الهاتف', 'المبلغ', 'التصنيف', 'التصنيف الفرعي', 'حالة الاشتراك', 'التفاصيل', 'التاريخ']];
                 
                 data.forEach(entry => {
                     const statusText = subscriptionStatusMap[entry.subscriptionStatus]?.text || entry.subscriptionStatus;
