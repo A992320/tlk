@@ -287,6 +287,37 @@
             font-family: monospace;
         }
         
+        /* أنماط حالة الاشتراك */
+        .subscription-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+            display: inline-block;
+            min-width: 100px;
+        }
+        
+        .status-active {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .status-expired {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .status-pending {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .status-cancelled {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
         .summary {
             margin-top: 20px;
             padding: 20px;
@@ -764,6 +795,15 @@
                 </select>
             </div>
             <div class="form-control">
+                <label for="subscriptionStatus">حالة الاشتراك:</label>
+                <select id="subscriptionStatus">
+                    <option value="active">تم الاشتراك</option>
+                    <option value="expired">منتهي الاشتراك</option>
+                    <option value="pending">قيد الانتظار</option>
+                    <option value="cancelled">ملغي</option>
+                </select>
+            </div>
+            <div class="form-control">
                 <label for="details">التفاصيل:</label>
                 <input type="text" id="details" placeholder="أدخل تفاصيل العملية">
             </div>
@@ -793,6 +833,16 @@
                     </select>
                 </div>
                 <div class="filter-control">
+                    <label for="statusFilter">تصفية حسب حالة الاشتراك:</label>
+                    <select id="statusFilter" onchange="applyFilters()">
+                        <option value="">الكل</option>
+                        <option value="active">تم الاشتراك</option>
+                        <option value="expired">منتهي الاشتراك</option>
+                        <option value="pending">قيد الانتظار</option>
+                        <option value="cancelled">ملغي</option>
+                    </select>
+                </div>
+                <div class="filter-control">
                     <label for="dateFilter">تصفية حسب التاريخ:</label>
                     <input type="date" id="dateFilter" onchange="applyFilters()">
                 </div>
@@ -812,8 +862,9 @@
                         <th onclick="sortTable(3)">المبلغ ▼</th>
                         <th onclick="sortTable(4)">التصنيف ▼</th>
                         <th onclick="sortTable(5)">التصنيف الفرعي ▼</th>
-                        <th onclick="sortTable(6)">التفاصيل ▼</th>
-                        <th onclick="sortTable(7)">التاريخ ▼</th>
+                        <th onclick="sortTable(6)">حالة الاشتراك ▼</th>
+                        <th onclick="sortTable(7)">التفاصيل ▼</th>
+                        <th onclick="sortTable(8)">التاريخ ▼</th>
                         <th>إجراء</th>
                     </tr>
                 </thead>
@@ -879,6 +930,15 @@
                     </select>
                 </div>
                 <div class="form-control">
+                    <label for="editSubscriptionStatus">حالة الاشتراك:</label>
+                    <select id="editSubscriptionStatus">
+                        <option value="active">تم الاشتراك</option>
+                        <option value="expired">منتهي الاشتراك</option>
+                        <option value="pending">قيد الانتظار</option>
+                        <option value="cancelled">ملغي</option>
+                    </select>
+                </div>
+                <div class="form-control">
                     <label for="editDetails">التفاصيل:</label>
                     <input type="text" id="editDetails">
                 </div>
@@ -909,6 +969,14 @@
             'مصروف': ['سكن', 'مواصلات', 'طعام', 'تسوق', 'ترفيه', 'صحة', 'تعليم', 'أخرى'],
             'قرض': ['قرض شخصي', 'قرض سكني', 'قرض سيارة', 'قرض تعليمي'],
             'استثمار': ['أسهم', 'عقارات', 'عملات رقمية', 'صناديق استثمار']
+        };
+        
+        // Subscription status mapping
+        const subscriptionStatusMap = {
+            'active': { text: 'تم الاشتراك', class: 'status-active' },
+            'expired': { text: 'منتهي الاشتراك', class: 'status-expired' },
+            'pending': { text: 'قيد الانتظار', class: 'status-pending' },
+            'cancelled': { text: 'ملغي', class: 'status-cancelled' }
         };
         
         // Load initial data
@@ -1263,6 +1331,7 @@
             const amount = parseFloat(document.getElementById('amount').value);
             const category = document.getElementById('category').value;
             const subcategory = document.getElementById('subcategory').value;
+            const subscriptionStatus = document.getElementById('subscriptionStatus').value;
             const details = document.getElementById('details').value.trim();
             const date = document.getElementById('date').value;
             
@@ -1285,6 +1354,7 @@
                 amount,
                 category,
                 subcategory,
+                subscriptionStatus: subscriptionStatus || 'active',
                 details,
                 date,
                 timestamp: new Date().getTime()
@@ -1312,6 +1382,7 @@
             document.getElementById('category').value = '';
             document.getElementById('details').value = '';
             document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('subscriptionStatus').value = 'active';
             document.getElementById('subcategoryControl').style.display = 'none';
         }
         
@@ -1347,6 +1418,7 @@
             document.getElementById('editPhone').value = entry.phone || '';
             document.getElementById('editAmount').value = entry.amount;
             document.getElementById('editCategory').value = entry.category || 'دخل';
+            document.getElementById('editSubscriptionStatus').value = entry.subscriptionStatus || 'active';
             document.getElementById('editDetails').value = entry.details || '';
             document.getElementById('editDate').value = entry.date;
             document.getElementById('editIndex').value = index;
@@ -1383,6 +1455,7 @@
             const amount = parseFloat(document.getElementById('editAmount').value);
             const category = document.getElementById('editCategory').value;
             const subcategory = document.getElementById('editSubcategory').value;
+            const subscriptionStatus = document.getElementById('editSubscriptionStatus').value;
             const details = document.getElementById('editDetails').value.trim();
             const date = document.getElementById('editDate').value;
             
@@ -1405,6 +1478,7 @@
                 amount,
                 category,
                 subcategory,
+                subscriptionStatus: subscriptionStatus || 'active',
                 details,
                 date,
                 timestamp: data[index].timestamp || new Date().getTime()
@@ -1426,6 +1500,7 @@
         function applyFilters() {
             const searchText = document.getElementById('searchBox').value.toLowerCase();
             const categoryFilter = document.getElementById('categoryFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
             const dateFilter = document.getElementById('dateFilter').value;
             
             const rows = document.querySelectorAll("#financeTable tbody tr");
@@ -1435,8 +1510,9 @@
                 const lastName = row.cells[1].textContent.toLowerCase();
                 const phone = row.cells[2].textContent.toLowerCase();
                 const category = row.cells[4].textContent;
-                const details = row.cells[6].textContent.toLowerCase();
-                const date = row.cells[7].textContent;
+                const status = row.cells[6].textContent;
+                const details = row.cells[7].textContent.toLowerCase();
+                const date = row.cells[8].textContent;
                 
                 const matchesSearch = searchText === '' || 
                     firstName.includes(searchText) || 
@@ -1445,9 +1521,14 @@
                     details.includes(searchText);
                     
                 const matchesCategory = categoryFilter === '' || category === categoryFilter;
+                const matchesStatus = statusFilter === '' || 
+                    (statusFilter === 'active' && status.includes('تم الاشتراك')) ||
+                    (statusFilter === 'expired' && status.includes('منتهي')) ||
+                    (statusFilter === 'pending' && status.includes('قيد')) ||
+                    (statusFilter === 'cancelled' && status.includes('ملغي'));
                 const matchesDate = dateFilter === '' || date === dateFilter;
                 
-                row.style.display = (matchesSearch && matchesCategory && matchesDate) ? '' : 'none';
+                row.style.display = (matchesSearch && matchesCategory && matchesStatus && matchesDate) ? '' : 'none';
             });
         }
         
@@ -1455,10 +1536,11 @@
         function resetFilters() {
             const searchBox = document.getElementById('searchBox');
             const categoryFilter = document.getElementById('categoryFilter');
+            const statusFilter = document.getElementById('statusFilter');
             const dateFilter = document.getElementById('dateFilter');
             
             // Add animation to reset
-            [searchBox, categoryFilter, dateFilter].forEach(element => {
+            [searchBox, categoryFilter, statusFilter, dateFilter].forEach(element => {
                 element.classList.add('pulse');
                 setTimeout(() => {
                     element.classList.remove('pulse');
@@ -1467,6 +1549,7 @@
             
             searchBox.value = '';
             categoryFilter.value = '';
+            statusFilter.value = '';
             dateFilter.value = '';
             applyFilters();
             
@@ -1502,8 +1585,9 @@
                     case 3: valueA = a.amount; valueB = b.amount; break;
                     case 4: valueA = a.category || ''; valueB = b.category || ''; break;
                     case 5: valueA = a.subcategory || ''; valueB = b.subcategory || ''; break;
-                    case 6: valueA = a.details; valueB = b.details; break;
-                    case 7: valueA = a.date; valueB = b.date; break;
+                    case 6: valueA = a.subscriptionStatus || ''; valueB = b.subscriptionStatus || ''; break;
+                    case 7: valueA = a.details; valueB = b.details; break;
+                    case 8: valueA = a.date; valueB = b.date; break;
                     default: valueA = a.timestamp; valueB = b.timestamp;
                 }
                 
@@ -1526,7 +1610,7 @@
                 if (index === columnIndex) {
                     header.textContent = header.textContent.replace(/[▼▲]/, '');
                     header.textContent += currentSort.ascending ? ' ▼' : ' ▲';
-                } else if (index < 8) {
+                } else if (index < 9) {
                     header.textContent = header.textContent.replace(/[▼▲]/, '') + ' ▼';
                 }
             });
@@ -1546,9 +1630,10 @@
             
             setTimeout(() => {
                 // Format data for Excel
-                const excelData = [['الاسم الأول', 'الاسم الثاني', 'رقم الهاتف', 'المبلغ', 'التصنيف', 'التصنيف الفرعي', 'التفاصيل', 'التاريخ']];
+                const excelData = [['الاسم الأول', 'الاسم الثاني', 'رقم الهاتف', 'المبلغ', 'التصنيف', 'التصنيف الفرعي', 'حالة الاشتراك', 'التفاصيل', 'التاريخ']];
                 
                 data.forEach(entry => {
+                    const statusText = subscriptionStatusMap[entry.subscriptionStatus]?.text || entry.subscriptionStatus;
                     excelData.push([
                         entry.firstName,
                         entry.lastName,
@@ -1556,6 +1641,7 @@
                         entry.amount,
                         entry.category || '',
                         entry.subcategory || '',
+                        statusText,
                         entry.details || '',
                         entry.date
                     ]);
@@ -1610,7 +1696,14 @@
                         
                         for (let i = 1; i < jsonData.length; i++) {
                             const row = jsonData[i];
-                            if (row.length >= 7) {
+                            if (row.length >= 8) {
+                                // Map status text back to status code
+                                let subscriptionStatus = 'active';
+                                const statusText = row[6] || '';
+                                if (statusText.includes('منتهي')) subscriptionStatus = 'expired';
+                                else if (statusText.includes('قيد')) subscriptionStatus = 'pending';
+                                else if (statusText.includes('ملغي')) subscriptionStatus = 'cancelled';
+                                
                                 importedData.push({
                                     firstName: row[0] || '',
                                     lastName: row[1] || '',
@@ -1618,8 +1711,9 @@
                                     amount: parseFloat(row[3]) || 0,
                                     category: row[4] || '',
                                     subcategory: row[5] || '',
-                                    details: row[6] || '',
-                                    date: row[7] || new Date().toISOString().slice(0, 10),
+                                    subscriptionStatus: subscriptionStatus,
+                                    details: row[7] || '',
+                                    date: row[8] || new Date().toISOString().slice(0, 10),
                                     timestamp: new Date().getTime()
                                 });
                             }
@@ -1688,16 +1782,17 @@
 
                 // Prepare table data
                 const tableData = [
-                    ['الاسم', 'رقم الهاتف', 'المبلغ', 'التصنيف', 'التصنيف الفرعي', 'التفاصيل', 'التاريخ']
+                    ['الاسم', 'رقم الهاتف', 'المبلغ', 'التصنيف', 'حالة الاشتراك', 'التفاصيل', 'التاريخ']
                 ];
 
                 data.forEach(entry => {
+                    const statusText = subscriptionStatusMap[entry.subscriptionStatus]?.text || entry.subscriptionStatus;
                     tableData.push([
                         `${entry.firstName} ${entry.lastName}`,
                         entry.phone || '',
                         entry.amount.toFixed(2),
                         entry.category || '',
-                        entry.subcategory || '',
+                        statusText,
                         entry.details || '',
                         entry.date
                     ]);
@@ -1719,13 +1814,13 @@
                         fontStyle: 'bold'
                     },
                     columnStyles: {
-                        0: { cellWidth: 30 },
-                        1: { cellWidth: 25 },
-                        2: { cellWidth: 20 },
-                        3: { cellWidth: 20 },
-                        4: { cellWidth: 25 },
-                        5: { cellWidth: 40 },
-                        6: { cellWidth: 25 }
+                        0: { cellWidth: 25 },
+                        1: { cellWidth: 20 },
+                        2: { cellWidth: 15 },
+                        3: { cellWidth: 15 },
+                        4: { cellWidth: 20 },
+                        5: { cellWidth: 30 },
+                        6: { cellWidth: 20 }
                     }
                 });
 
@@ -1791,6 +1886,9 @@
                     `<a href="tel:${entry.phone.replace(/\s/g, '')}" class="phone-link">${entry.phone}</a>` : 
                     '';
                 
+                const statusInfo = subscriptionStatusMap[entry.subscriptionStatus] || subscriptionStatusMap['active'];
+                const statusDisplay = `<span class="subscription-status ${statusInfo.class}">${statusInfo.text}</span>`;
+                
                 row.innerHTML = `
                     <td>${entry.firstName}</td>
                     <td>${entry.lastName}</td>
@@ -1798,6 +1896,7 @@
                     <td>${entry.amount.toFixed(2)}</td>
                     <td>${entry.category || ''}</td>
                     <td>${entry.subcategory || ''}</td>
+                    <td>${statusDisplay}</td>
                     <td>${entry.details || ''}</td>
                     <td>${entry.date}</td>
                     <td class="action-buttons-cell">
